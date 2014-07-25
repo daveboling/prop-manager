@@ -7,11 +7,25 @@
 var expect = require('chai').expect;
 var Renter = require('../../app/models/renter');
 var Room   = require('../../app/models/room');
-var Apartment = require('../../app/models/apartment');
+var connect = require('../../app/lib/mongodb');
+var Apartment;
+var Mongo = require('mongodb');
+
 
 describe('Apartment', function() {
 	//before and beforeEach goes here
-
+ 	before(function(done) {
+ 	  connect('property-manager', function(){
+ 	  Apartment = require('../../app/models/apartment');
+ 	  done();
+ 	  });
+ 	});
+ 	
+ 	beforeEach(function(done){
+ 	  global.mongodb.collection('units').remove(function(){
+ 	    done();
+ 	  });
+ 	});
 
 
 	describe('contructor', function() {
@@ -210,6 +224,62 @@ describe('Apartment', function() {
 			apt.collectRent();
 
 			expect(apt.renters.length).to.equal(2);
+		});
+	});
+
+
+	describe('#save', function() {
+		it('should update and existing item in the database', function(done){
+      		var apt = new Apartment('A1');
+
+			apt.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+      		apt.save(function(){
+      		  expect(apt._id).to.be.instanceof(Mongo.ObjectID);
+      		  done();
+      		}); 
+		});
+	});
+
+
+	describe('.find', function() {
+		it('should find all', function(done){
+      		var apt = new Apartment('A1');
+      		var apt2 = new Apartment('A1');
+
+			apt.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+			apt2.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+      		apt.save(function(){
+      		  apt2.save(function(){
+      		  	Apartment.find(function(apartments){
+      		  		expect(apartments.length).to.equal(2);
+      		  		done();
+      		  	});
+      		  });
+      		}); 
 		});
 	});
 

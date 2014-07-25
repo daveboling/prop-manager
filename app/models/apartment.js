@@ -1,6 +1,12 @@
 'use strict';
 
 
+//aptComplex database
+var aptComplex = global.mongodb.collection('units');
+var _ = require('lodash');
+
+
+
 function Apartment(name){
 	this.name 		= name;
 	this.rooms      = [];
@@ -69,6 +75,20 @@ Apartment.prototype.collectRent = function() {
 	this.purgeEvicted();
 }
 
+Apartment.prototype.save = function(cb){
+  aptComplex.save(this, function(err, obj){
+    cb();
+  });
+};
+
+
+
 /* CLASS METHODS */
+
+Apartment.find = function(cb){
+	aptComplex.find().toArray(function(err, obj){
+		cb(obj);
+	});
+};
 
 module.exports = Apartment;
