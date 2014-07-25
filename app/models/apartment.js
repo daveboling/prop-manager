@@ -5,6 +5,7 @@
 var aptComplex = global.mongodb.collection('units');
 var _ = require('lodash');
 var ObjectId = require('mongodb').ObjectID;
+var Room = require('./room');
 
 
 function Apartment(name){
@@ -92,7 +93,7 @@ Apartment.find = function(cb){
 };
 
 Apartment.findByID = function(findID, cb){
-	aptComplex.findOne({"_id" : ObjectId(findID)}, function(err, obj){
+	aptComplex.findOne({'_id' : ObjectId(findID)}, function(err, obj){
 		//Turn to string for data type difference
 		var obID = obj._id.toString();
 		//Re-prototype obj so we can test it
@@ -100,6 +101,71 @@ Apartment.findByID = function(findID, cb){
 		cb(obID, obj);
 	});
 };
+
+Apartment.deleteByID = function(deleteID, cb){
+	aptComplex.remove({'_id' : ObjectId(deleteID)}, function(err, obj){
+		cb(obj);
+	});
+
+};
+
+Apartment.area = function(cb){
+	aptComplex.find().toArray(function(err, obj){
+		var sum = 0;
+		for(var i = 0; i < obj.length; i++){
+			for(var k = 0; k < obj[i].rooms.length; k++) {
+			var unit = obj[i].rooms[k];
+			unit = _.create(Room.prototype, unit);
+			sum += unit.area();
+			}
+		}
+		cb(sum);
+	});
+};
+
+Apartment.cost = function(cb){
+	aptComplex.find().toArray(function(err, obj){
+		var sum = 0;
+		for(var i = 0; i < obj.length; i++){
+			for(var k = 0; k < obj[i].rooms.length; k++) {
+			var unit = obj[i].rooms[k];
+			unit = _.create(Room.prototype, unit);
+			sum += unit.cost();
+			}
+		}
+		cb(sum);
+	});
+};
+
+Apartment.tenants = function(cb){
+	aptComplex.find().toArray(function(err, obj){
+		var sum = 0;
+		for(var i = 0; i < obj.length; i++){
+			var unit = obj[i].renters.length;
+			sum += unit;
+		}
+		cb(sum);
+	});
+};
+
+Apartment.revenue = function(cb){
+	aptComplex.find().toArray(function(err, obj){
+		var sum = 0;
+		for(var i = 0; i < obj.length; i++){
+			if (obj[i].rooms.length > 0 ) {
+				for(var k = 0; k < obj[i].rooms.length; k++) {
+					var unit = obj[i].rooms[k];
+					unit = _.create(Room.prototype, unit);
+					sum += unit.cost();
+				}
+			}
+		}
+		cb(sum);
+	});
+};
+
+
+
 
 
 module.exports = Apartment;

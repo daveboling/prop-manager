@@ -1,5 +1,5 @@
 /*jshint expr:true*/
-/*global describe, it*/
+/*global describe, it, before, beforeEach*/
 'use strict';
 
 
@@ -252,7 +252,7 @@ describe('Apartment', function() {
 	describe('.find', function() {
 		it('should find all apartments in the database', function(done){
       		var apt = new Apartment('A1');
-      		var apt2 = new Apartment('A1');
+      		var apt2 = new Apartment('A2');
 
 			apt.rooms = [
 			new Room('bedroom', 10, 10),
@@ -286,7 +286,7 @@ describe('Apartment', function() {
 	describe('.findByID', function() {
 		it('should find a specific unit by ID', function(done){
       		var apt = new Apartment('A1');
-      		var apt2 = new Apartment('A1');
+      		var apt2 = new Apartment('A2');
 
 			apt.rooms = [
 			new Room('bedroom', 10, 10),
@@ -320,7 +320,232 @@ describe('Apartment', function() {
 		});
 	});
 
+	describe('.deleteByID', function() {
+		it('should delete a database entry by ID', function(done){
+      		var apt = new Apartment('A1');
+
+			apt.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+      		  apt.save(function(){
+      		  	Apartment.deleteByID(apt._id, function(){
+      		  		Apartment.find(function(nothing){
+      		  			expect(nothing.length).to.equal(0);
+      		  			done();
+      		  		});
+      		  	});
+      		});
+      	}); 
+	});
+
+	describe('.area', function() {
+		it('should display total area of entire complex', function(done){
+      		var apt = new Apartment('A1');
+      		var apt2 = new Apartment('A2');
+
+			apt.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+			apt2.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+			var area = apt.area() + apt2.area();
+
+      		apt.save(function(){
+      		  apt2.save(function(){
+
+      		  	Apartment.area(function(overAll){
+      		  		expect(overAll).to.equal(area);
+      		  		done();
+      		  	});
+      		  });
+      		}); 
+		});
+	});
+
+	describe('.cost', function() {
+		it('should display total cost of the entire complex', function(done){
+      		var apt = new Apartment('A1');
+      		var apt2 = new Apartment('A2');
+
+			apt.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+			apt2.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+			var cost = apt.cost() + apt2.cost();
+
+      		apt.save(function(){
+      		  apt2.save(function(){
+      		  	Apartment.cost(function(overCost){
+      		  		expect(overCost).to.equal(cost);
+      		  		done();
+      		  	});
+      		  });
+      		}); 
+		});
+	});
 
 
 
+	describe('.tenants', function(){
+		it('should display total number of tenants', function(done){
+			var apt = new Apartment('A1');
+			var apt2 = new Apartment('A2');
+
+			apt.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+
+			apt.renters = [
+			new Renter('laura', '20', 'female', 'social worker' ),
+			new Renter('samantha', '32', 'female', 'coder' ),
+			new Renter('seymour', '18', 'male', 'waiter' ),
+			new Renter('dan', '20', 'male', 'spartan' ),
+			];
+
+			apt2.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+
+			apt2.renters = [
+			new Renter('laura', '20', 'female', 'social worker' ),
+			new Renter('samantha', '32', 'female', 'coder' ),
+			new Renter('seymour', '18', 'male', 'waiter' ),
+			new Renter('dan', '20', 'male', 'spartan' ),
+			];
+
+			//Number of tenant to test against
+			var sumTenants = apt.renters.length + apt2.renters.length;
+
+
+      		apt.save(function(){
+      		  apt2.save(function(){
+      		  	Apartment.tenants(function(tenants){
+      		  		expect(tenants).to.equal(sumTenants);
+      		  		done();
+      		  	});
+      		  });
+      		}); 
+		});
+	});
+
+
+describe('.revenue', function(){
+		it('should display total revenue of the entire complex', function(done){
+			var apt = new Apartment('A1');
+			var apt2 = new Apartment('A2');
+
+			apt.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+
+			apt.renters = [
+			new Renter('laura', '20', 'female', 'social worker' ),
+			new Renter('samantha', '32', 'female', 'coder' ),
+			new Renter('seymour', '18', 'male', 'waiter' ),
+			new Renter('dan', '20', 'male', 'spartan' ),
+			];
+
+			apt2.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+
+			apt2.renters = [
+			new Renter('laura', '20', 'female', 'social worker' ),
+			new Renter('samantha', '32', 'female', 'coder' ),
+			new Renter('seymour', '18', 'male', 'waiter' ),
+			new Renter('dan', '20', 'male', 'spartan' ),
+			];
+
+			//Number of tenant to test against
+			var sumRevenue = apt.cost() + apt2.cost();
+
+
+      		apt.save(function(){
+      		  apt2.save(function(){
+      		  	Apartment.revenue(function(revenue){
+      		  		expect(revenue).to.equal(sumRevenue);
+      		  		done();
+      		  	});
+      		  });
+      		}); 
+		});
+	});
+
+describe('.revenue', function(){
+		it('should not display total revenue', function(done){
+			var apt = new Apartment('A1');
+			var apt2 = new Apartment('A2');
+
+			//Number of tenant to test against
+			var sumRevenue = apt.cost() + apt2.cost();
+
+
+      		apt.save(function(){
+      		  apt2.save(function(){
+      		  	Apartment.revenue(function(revenue){
+      		  		expect(revenue).to.equal(0);
+      		  		done();
+      		  	});
+      		  });
+      		}); 
+		});
+	});
+		
 });
