@@ -4,7 +4,7 @@
 //aptComplex database
 var aptComplex = global.mongodb.collection('units');
 var _ = require('lodash');
-
+var ObjectId = require('mongodb').ObjectID;
 
 
 function Apartment(name){
@@ -23,7 +23,7 @@ Apartment.prototype.area = function() {
 		sum += this.rooms[i].area();
 	}
 	return sum;
-}
+};
 
 
 Apartment.prototype.cost = function() {
@@ -34,7 +34,7 @@ Apartment.prototype.cost = function() {
 		sum += this.rooms[i].cost();
 	}
 	return sum;
-}
+};
 
 
 Apartment.prototype.bedrooms = function() {
@@ -47,13 +47,13 @@ Apartment.prototype.bedrooms = function() {
 		}
 	}
 	return sum;
-}
+};
 
 
 Apartment.prototype.isAvailable = function() {
 	//this is the same as saying if(this.bedrooms() !== this.renters.length) { return true; }
 	return this.bedrooms() !== this.renters.length;
-}
+};
 
 
 Apartment.prototype.purgeEvicted = function() {
@@ -64,7 +64,7 @@ Apartment.prototype.purgeEvicted = function() {
 			this.renters.splice(i, 1);
 		}
 	}
-}
+};
 
 
 Apartment.prototype.collectRent = function() {
@@ -73,7 +73,7 @@ Apartment.prototype.collectRent = function() {
 	}
 
 	this.purgeEvicted();
-}
+};
 
 Apartment.prototype.save = function(cb){
   aptComplex.save(this, function(err, obj){
@@ -90,5 +90,16 @@ Apartment.find = function(cb){
 		cb(obj);
 	});
 };
+
+Apartment.findByID = function(findID, cb){
+	aptComplex.findOne({"_id" : ObjectId(findID)}, function(err, obj){
+		//Turn to string for data type difference
+		var obID = obj._id.toString();
+		//Re-prototype obj so we can test it
+		obj = _.create(Apartment.prototype, obj);
+		cb(obID, obj);
+	});
+};
+
 
 module.exports = Apartment;

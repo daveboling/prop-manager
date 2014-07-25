@@ -250,7 +250,7 @@ describe('Apartment', function() {
 
 
 	describe('.find', function() {
-		it('should find all', function(done){
+		it('should find all apartments in the database', function(done){
       		var apt = new Apartment('A1');
       		var apt2 = new Apartment('A1');
 
@@ -276,6 +276,43 @@ describe('Apartment', function() {
       		  apt2.save(function(){
       		  	Apartment.find(function(apartments){
       		  		expect(apartments.length).to.equal(2);
+      		  		done();
+      		  	});
+      		  });
+      		}); 
+		});
+	});
+
+	describe('.findByID', function() {
+		it('should find a specific unit by ID', function(done){
+      		var apt = new Apartment('A1');
+      		var apt2 = new Apartment('A1');
+
+			apt.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+			apt2.rooms = [
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bedroom', 10, 10),
+			new Room('bathroom', 5, 5),
+			new Room('kitchen', 10, 5)
+			];
+
+      		apt.save(function(){
+      		  apt2.save(function(){
+      		  	//Turn into string due to data type differences
+      		  	var _apt2ID = apt._id.toString();
+      		  	Apartment.findByID(_apt2ID, function(unit, obj){
+      		  		expect(_apt2ID).to.equal(unit);
+      		  		expect(obj).to.be.instanceof(Apartment);
       		  		done();
       		  	});
       		  });
